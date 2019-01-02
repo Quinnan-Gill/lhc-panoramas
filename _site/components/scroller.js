@@ -7,12 +7,48 @@ AFRAME.registerComponent('scroll-left', {
         on: {type: 'string'}
     },
 
+    init: function () {
+        var image_groups_left = null;
+
+        try {
+            image_groups_left = new ImageGroups();
+            image_groups_left.pull_from_storage();
+            console.log("SUCCESFULLY pulled from storage");
+        } catch (e) {
+            console.log("FAILED to pull from storage");
+        }
+    },
+
     update: function () {
         var data = this.data;
         var el = this.el;
 
+        var image_groups_left = null;
+
+        try {
+            image_groups_left = new ImageGroups();
+        } catch(e) {
+            // do nothing
+        }
+
+        if (image_groups_left != null) {
+            image_groups_left.pull_from_storage();
+            if (image_groups_left.get_size() <= 1) {
+                document.querySelector("#left-scroller").setAttribute("visible", false);
+                document.querySelector("#right-scroller").setAttribute("visible", false);
+            }
+
+            var opacityChange = document.querySelector(".scroll-left");
+
+            if(image_groups_left.get_index() == 1) {
+                opacityChange.setAttribute("src", "#left-arrow-clear");
+            } else {
+                opacityChange.setAttribute("src", "#left-arrow");
+            }
+        }
+
         el.addEventListener(data.on, function() {
-            var image_groups_left = new ImageGroups();
+            image_groups_left = new ImageGroups();
             image_groups_left.pull_from_storage();
 
             var index = image_groups_left.get_index();
@@ -37,8 +73,27 @@ AFRAME.registerComponent('scroll-right', {
         var data = this.data;
         var el = this.el;
 
+        var image_groups_right = null;
+
+        try {
+            image_groups_right = new ImageGroups();
+        } catch (e) {
+            // do nothing
+        }
+
+        if (image_groups_right != null) {
+            image_groups_right.pull_from_storage();
+
+            var opacityChange = document.querySelector(".scroll-right");
+            if(image_groups_right.get_index() == image_groups_right.get_size()) {
+                opacityChange.setAttribute("src", "#right-arrow-clear");
+            } else {
+                opacityChange.setAttribute("src", "#right-arrow");
+            }
+        }
+
         el.addEventListener(data.on, function() {
-            var image_groups_right = new ImageGroups();
+            image_groups_right = new ImageGroups();
             image_groups_right.pull_from_storage();
 
             var size = image_groups_right.get_size();
